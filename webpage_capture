@@ -1,0 +1,192 @@
+#!/bin/sh
+#
+#
+# USAGE: webpage_capture [-p widthxheight] [-t widthxheight] [-frame] [-crop] [-full] webURL [outputDir]
+#
+# OPTIONS:
+#
+# -p            widthxheight   input page size (width x height); value in pixels, default = 600x400
+# -t            widthxheight   thumbnail size (width x height); value in pixels, default = 200x200
+#
+#
+# Output options are -frame, -crop and -full.  You may specify any combination
+# -frame        ouput a "framed" thumbnail
+# -crop         ouput a "cropped" thumbnail
+# -full         ouput a "full" capture, this is the default if neither -crop nor -full are specified
+#
+# outputDir     default is "web_capture_files"
+#
+# the program will echo the names of the files created, one per line, in the form
+#   full:fileName_x
+#   crop:fileName_y
+#   frame:fileName_z
+#
+###
+#
+
+
+#default values
+thumbSize="200x200"
+pageSize="600x400"
+outputDir="web_capture_files"
+
+
+crop=0
+frame=0
+full=0
+
+
+
+
+# set up functions to report Usage and Usage with Description
+PROGNAME=`type $0 | awk '{print $3}'`  # search for executable on path
+PROGDIR=`dirname $PROGNAME`            # extract directory of program
+PROGNAME=`basename $PROGNAME`          # base name of program
+
+usage1() 
+	{
+	echo >&2 ""
+	echo >&2 "$PROGNAME:" "$@"
+	sed >&2 -n '/^###/q;  /^#/!q;  s/^#//;  s/^ //;  4,$p' "$PROGDIR/$PROGNAME"
+	}
+	
+# function to report error messages
+errMsg()
+	{
+	echo ""
+	echo $1
+	echo ""
+	usage1
+	exit 1
+	}
+	
+	
+# test for correct number of arguments and get values
+if [ $# -eq 0 ]
+	then
+	# help information
+   echo ""
+   usage1
+   exit 0
+elif [ $# -gt 11 ]
+	then
+	errMsg "--- TOO MANY ARGUMENTS WERE PROVIDED ---"
+else
+	while [ $# -gt 0 ]
+		do
+			# get parameter values
+			case "$1" in
+		  -h|-help)    # help information
+					   echo ""
+					   usage1
+					   exit 0
+					   ;;
+	 [0-9]*x[0-9]*)    # get size
+					   # test size values
+					   size="$1"
+					   [ "$size" = "" ] && errMsg "SIZE=$size IS NOT A NUMBER"
+					   ;;
+		 		-p)    # page-size
+					   shift  # to get the next parameter - page-size
+					   pageSize="$1"
+					   ;;
+		 		-t)    # thumb-size
+					   shift  # to get the next parameter - thumb-size
+					   thumbSize="$1"
+					   ;;
+		 		-full)    # full
+					   full=1
+					   ;;
+		 		-frame)    # frame
+					   frame=1
+					   ;;
+		 		-crop)    # crop
+					   crop=1
+					   ;;
+ 				 -)    # STDIN, end of arguments
+  				 	   break
+  				 	   ;;
+				-*)    # any other - argument
+					   errMsg "--- UNKNOWN OPTION ---"
+					   ;;					   
+		     	 *)    # end of arguments
+					   break
+					   ;;
+			esac
+			shift   # next option
+	done
+	#
+	# get infile and outfile
+	url=$1
+	if [ $2 != 0 ]
+	  then
+	  outputDir=$2
+	fi
+fi
+
+if [ $frame -eq 0 -a $crop -eq 0 ]
+  then
+  full=1
+fi
+
+echo "thumbSize:$thumbSize"
+echo "pageSize:$pageSize"
+echo "url:$url"
+echo "outputDir:$outputDir"
+#echo "full:$full"
+#echo "crop:$crop"
+#echo "frame:$frame"
+
+#make the output directory
+mkdir -p "$outputDir"
+
+
+# these variable can be modified to suit needs
+pageWidth=600
+pageHeigh=400
+
+format=jpg
+captureDelay=2000
+
+
+thumbWidth=200
+thumbHheight=200
+
+appDir=`dirname "$0"`
+
+#create a unique-named file for the caputre
+captureFile=`mktemp $outputDir/XXXXXXXX.$format`
+
+#captureFile="$outputDir/CLZfk0IJ.png"
+#echo "captureFile:$captureFile"
+
+#create the capture
+DISPLAY=:1 "$appDir/CutyCapt" --url="$url" --out="$captureFile" --min-width=600 --min-height=400 --plugins=off --delay=$captureDelay
+
+#crop the image to $widthx$height
+convert $captureFile -crop "$pageSize"+0+0 $captureFile
+
+framedThumbFile=`dirname $captureFile`/framedThumb_`basename $captureFile`
+croppedThumbFile=`dirname $captureFile`/croppedThumb_`basename $captureFile`
+
+# create the framed thumbnail, output name
+if [ $frame -eq 1 ] 
+  then
+  convert "$captureFile" -resize "$thumbSize" -background transparent -gravity center -extent "$thumbSize" "$framedThumbFile" 
+  echo "frame:$framedThumbFile"
+fi
+
+#create the cropped thumbnail, ouput name
+if [ $crop -eq 1 ] 
+  then
+  $appDir/aspect "$thumbSize" -m crop "$captureFile" "$croppedThumbFile"
+  echo "crop:$croppedThumbFile"
+fi
+
+#delete the full file, if not needed, otherwise output name
+if [ $full -eq 1 ]
+  then
+  echo "full:$captureFile"
+else
+  rm $captureFile
+fi
