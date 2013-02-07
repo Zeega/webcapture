@@ -145,7 +145,7 @@ mkdir -p "$outputDir"
 pageWidth=600
 pageHeigh=400
 
-format=jpg
+format=png
 captureDelay=2000
 
 
