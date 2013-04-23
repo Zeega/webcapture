@@ -168,7 +168,7 @@ DISPLAY=:1 ./CutyCapt --url="http://rynop.com" --out="rynop.jpg" --out-format=jp
 
 
 
-### PART 3, INSTALLING the website_capture script
+### PART 3, Installing the website_capture script
 
 cd to the directory where you wish to put the website_capture script
 
