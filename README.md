@@ -1,7 +1,7 @@
 #Installation Instructions
 
 
-### PART 1, Installing CutyCapt
+### PART 1: Installing CutyCapt
 
 
 Install these libraries to get started
@@ -50,18 +50,18 @@ test CutyCupt
 xvfb-run --server-args="-screen 0, 1024x768x24" ./CutyCapt --url="http://www.learningware.com/" --out="lw.png"
 ```
 
-### PART 2, Installing and starting xvfb as a service
+### PART 2: Installing and starting xvfb as a service
 
 now I will install xvfb as a service 
-the complete instructions are at http://rynop.com/take-website-screenshots-on-headless-linux-di
-create the file in /etc/init.d 
 
-
+```bash
 sudo vi /etc/init.d/screencap
+```
 
-# paste in text below
 
-----------FILE CONTENTS----------
+paste in text below
+
+```bash
 #!/bin/sh
 
 ### BEGIN INIT INFO
@@ -121,53 +121,81 @@ case "$1" in
 esac
 
 exit 0
+```
 
------------END FILE CONTENTS------------
+and run 
 
-# i have no idea what this does
+```bash
 sudo update-rc.d screencap defaults
-# make it so screen cap can run, in my instance the owner is root, your situation may vary
+```
+
+make it so screen cap can run, in my instance the owner is root, your situation may vary
+
+```bash
 sudo chmod 700 /etc/init.d/screencap
-# start the service
+```
+
+start the service
+```bash
 sudo /etc/init.d/screencap start
-#screencap server tends to go down, set cronjob to make sure it stays up
+```
+screencap server tends to go down, set cronjob to make sure it stays up
 
+```bash
 sudo crontab -e 
+```
 
-#add the following tasks
+add the following tasks
 
+```bash
 * * * * * sudo /etc/init.d/screencap start
 * * * * * sudo rm -f /opt/tmp
+```
 
-# create tmp folder
+create tmp folder
 
+```bash
 sudo mkdir /opt/tmp
 chmod 777 /opt/tmp
+```
 
-# go back to the CutyCapt directory and test it using the xvfb serice
+go back to the CutyCapt directory and test it using the xvfb serice
+
+```bash
 cd /opt/cutycapt/CutyCapt/
 DISPLAY=:1 ./CutyCapt --url="http://rynop.com" --out="rynop.jpg" --out-format=jpeg --plugins=off --delay=4000
-ls #success!
+```
 
 
-# PART 3, INSTALLING the website_capture script, this is what I wrote
 
-# cd to the directory where you wish to put the website_capture script
+### PART 3, INSTALLING the website_capture script
 
+cd to the directory where you wish to put the website_capture script
+
+
+get the project from the github
+
+```bash
 cd /opt
-# get the project from the github
-
 sudo git clone https://github.com/Zeega/webcapture.git
+```
 
-# cd down into the folder containing the script
+cd down into the folder containing the script
+
+```bash
 cd webcapture
+```
 
-# create a link to the CutyCapt program, your location my vary
-#  (a different approach would be to include CutyCapt in $PATH, but I did not write the script that way)
+create a link to the CutyCapt program, your location my vary
+
+```bash
 sudo ln -s ../cutycapt/CutyCapt/CutyCapt CutyCapt
+```
 
-# at this point, the contents of the webcapture dir should look like this
-# (note that the x bit must be on for CutyCapt, aspect and webpage_capture)
+at this point, the contents of the webcapture dir should look like this
+(note that the x bit must be on for CutyCapt, aspect and webpage_capture)
+
+```bash
 >ls -la
 total 28
 drwxr-xr-x 3 root root 4096 Sep  1 02:30 .
@@ -176,16 +204,22 @@ drwxr-xr-x 6 root root 4096 Sep  1 02:22 .svn
 lrwxrwxrwx 1 root root   29 Sep  1 02:30 CutyCapt -> ../cutycapt/CutyCapt/CutyCapt
 -rwxr-xr-x 1 root root 7590 Sep  1 02:22 aspect
 -rwxr-xr-x 1 root root 4199 Sep  1 02:22 webpage_capture
+```
 
-# install imagemagick, required for the cropping, scaling and framing
+install imagemagick, required for the cropping, scaling and framing
+```bash
 apt-get install imagemagick --fix-missing
+```
 
-# PART 4, TESTING the website_capture script
+### PART 4: Testing the website_capture script
 
-# finally, test the script:
+finally, test the script:
+
+```bash
 /opt/webcapture/webpage_capture -p 500x400 -t 200x200 -crop -frame -full "http://metalab.harvard.edu/"
-
-# after a few seconds you will see output similar to the following
+```
+after a few seconds you will see output similar to the following
+```bash
 	thumbSize:200x200
 	pageSize:500x400
 	url:http://metalab.harvard.edu/
@@ -193,14 +227,19 @@ apt-get install imagemagick --fix-missing
 	frame:web_capture_files/framedThumb_DMGxV5bU.png
 	crop:web_capture_files/croppedThumb_DMGxV5bU.png
 	full:web_capture_files/DMGxV5bU.png
+```
 
-# the last three lines of the above indicate the location of the files
-#  which will be in a sub-directory "web_capture_files" of your current directory
+the last three lines of the above indicate the location of the files
+which will be in a sub-directory "web_capture_files" of your current directory
+
+```bash
 dir web_capture_files/
 	croppedThumb_DMGxV5bU.png  framedThumb_DMGxV5bU.png  DMGxV5bU.png
+```
 
+to see the options for the script webpage_capture, use, without an arguments
 
-# to see the options for the script webpage_capture, use, without an arguments
+```bash
 /opt/webcapture/webpage_capture
 	
 	webpage_capture:
@@ -223,5 +262,5 @@ dir web_capture_files/
 	  full:fileName_x
 	  crop:fileName_y
 	  frame:fileName_z
-
+```
 
