@@ -1,45 +1,62 @@
-Installation Instructions
-==========
-# PART 1, INSTALLING CutyCapt
+#Installation Instructions
 
-# get CutyCapt, starting in /opt
 
-cd /opt
-# svn will create a subdirectory for CutyCapt
+### PART 1, Installing CutyCapt
 
-# need these libraries to get started
+
+Install these libraries to get started
+
+```bash
 sudo apt-get install subversion libqt4-webkit libqt4-dev g++
 sudo apt-get install subversion libapache2-svn
 sudo apt-get install libqt4-core libqt4-dev libqt4-gui qt4-dev-tools
 sudo apt-get install cpp gcc
 sudo apt-get install build-essential g++
+```
 
-# get CutyCapt repository
+get CutyCapt repository
+
+```bash
+cd /opt
 sudo svn co https://cutycapt.svn.sourceforge.net/svnroot/cutycapt 
+```
 
-# cd to the directory containing the CutyCapt source
+cd to the directory containing the CutyCapt source
+
+```bash
 cd cutycapt/CutyCapt/
-# create the Make file to compile CutyCapt
+```
+
+create the Make file to compile CutyCapt
+
+```bash
 sudo qmake
 sudo qmake-qt4
-
 sudo gcc -v
 sudo make -v
-sudo make 
+sudo make
+```
 
-#SUCCESS!!
 
-# to test CutyCapt, I need to install xvfb
+to test CutyCapt, I need to install xvfb
+
+```bash
 sudo aptitude install xvfb
-# test CutyCupt
+```
+
+test CutyCupt
+
+```bash
 xvfb-run --server-args="-screen 0, 1024x768x24" ./CutyCapt --url="http://www.learningware.com/" --out="lw.png"
-ls #success!
+```
 
-# PART 2, INSTALLING and STARTING xvfb AS A SERVICE
+### PART 2, Installing and starting xvfb as a service
 
-# now I will install xvfb as a service
-#  the complete instructions are at http://rynop.com/take-website-screenshots-on-headless-linux-di
-# create the file in /etc/init.d 
+now I will install xvfb as a service 
+the complete instructions are at http://rynop.com/take-website-screenshots-on-headless-linux-di
+create the file in /etc/init.d 
+
+
 sudo vi /etc/init.d/screencap
 
 # paste in text below
